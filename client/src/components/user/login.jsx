@@ -11,6 +11,7 @@ export default function LoginUser() {
     const [error, setError] = useState({});
     const navigate = useNavigate();
 
+    
     const handleChange = (e) => {
         setRecord({ ...record, [e.target.name]: e.target.value });
     };
