@@ -1,14 +1,9 @@
-const express = require('express')
-const { registerUser, loginUser, AddCart, fetchCartById, deleteCartItem} = require('../controller/usercontrol');
-const { ViewProduct } = require('../controller/adminControl');
-const userRoute = express.Router()
+const express = require('express');
+const router = express.Router();
+const userControl = require('../controller/usercontrol');
 
+router.post('/send-otp', userControl.sendOTP);
+router.post('/verify-otp', userControl.verifyOTP);
+router.post('/login-password', userControl.loginWithPassword);
 
-userRoute.post('/register',registerUser)
-userRoute.post('/loginuser', loginUser);
-userRoute.get('/viewproduct',ViewProduct);
-userRoute.post('/addcart',AddCart);
-userRoute.get('/viewcartbyid', fetchCartById);
-userRoute.delete('/deletecart/:itemId',deleteCartItem)
-
-module.exports =userRoute;
+module.exports = router;

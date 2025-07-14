@@ -1,29 +1,39 @@
 const express = require('express')
-const userRoute = require('./router/userRoute')
-const adminRoute = require('./router/adminRouter')
-const app = express()
-const cors =require('cors')
-app.use(cors())
-app.use(express.urlencoded({extended:true}))
-app.use(express.json())
 require('dotenv').config()
-app.use('/uploads',express.static('uploads'))
-const mongoose =require('mongoose')
-const orderRoute = require('./router/orderRouter')
-const dbconnect =async()=>{
-    try{
+const app = express()
+const cors = require('cors')
+app.use(cors())
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
+// file uploading...
+app.use('/uploads', express.static('uploads'))
+const mongoose = require('mongoose')
+// routers
+const router = require('./router/userRoute')
+const adminRoute = require('./router/adminRouter')
+const sellerRoute = require('./router/sellerRouter')
+const productRouter = require('./router/productRouter')
+const cartRoute = require('./router/cartRouter')
+
+// database connectivity code
+const dbconnect = async () => {
+    try {
         await mongoose.connect(process.env.database_connection)
         console.log("Database connected successfully")
     }
-    catch(error){
-        console.log("database connection error",error)
+    catch (error) {
+        console.log("database connection error", error)
     }
 }
 dbconnect()
-app.use('/api/user',userRoute)
-app.use('/api/admin',adminRoute)
-app.use('/api/order',orderRoute)
+
+// routing...
+app.use('/api/admin', adminRoute)
+app.use('/api/user', router)
+app.use('/api/seller', sellerRoute)
+app.use('/api/product', productRouter)
+app.use('/api/cart', cartRoute)
 // do not give 6000 as PORT it arises issues
-app.listen(9000,()=>{
+app.listen(9000, () => {
     console.log("Server started successful")
 })

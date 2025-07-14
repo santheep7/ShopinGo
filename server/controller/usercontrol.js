@@ -1,119 +1,134 @@
-const User = require('../model/user')
-const Product=require('../model/productmodel')
-const jwt=require('jsonwebtoken')
-const Cart = require('../model/cartmodel')
-const registerUser=async(req,res)=>{
-    try{
-        const {username,email,password} = req.body
-        const data = await User({
-            username,
-            email,
-            password
-        })
-        await data.save()
-        res.json("data recieved successfully")
-    }catch(err){
-
-        console.log(err)
-    }
-}
-
-const loginUser=async(req,res)=>{
-    try{
-        const { email,password}=req.body
-        const loggeduser=await User.findOne({email:email})
-        console.log(loggeduser)
-        if(loggeduser){
-            if(loggeduser.password == password){
-                const token =jwt.sign({id:loggeduser._id},process.env.jwt_secret_key,{expiresIn:"1hr"})
-                res.json({msg:"user logined succesfully",status:200,token,username:loggeduser.username});
-
-            }else{
-                res.json({msg:"invalid credentials",status:400})
-            }
-        }else{
-            res.json({msg:"user not found",status:400})
-        }
-    }catch(error){
-        console.log(error)
-    }
-}
-const ViewProduct = async (req, res) => {
+const User = require('../model/user');
+const nodemailer = require('nodemailer');
+const jwt = require('jsonwebtoken')
+require('dotenv').config()
+const sendOTP = async (req, res) => {
   try {
-    const products = await Product.find();
-    res.json(products);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+    const { email, phone, role = 'user', company, mode = "login" } = req.body;
 
-const AddCart=async(req,res)=>{
-    const userId=req.headers.userid
-    const {productId,Quantity}=req.body
-    console.log(req.headers)
-    try{
-      const cart=await Cart.findOne({userId:userId,status:"cart"})
-      if(cart){
-        const productIndex=cart.product.findIndex(p=>
-          p.productId==productId
-        )
-        if(productIndex > -1){
-          cart.product[productIndex].quantity += Quantity ? Quantity : 1;
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
 
-        }else{
-          cart.product.push({productId,quantity:Quantity})
-        }
-        await cart.save()
-      }else{
-       const cart=await Cart({
-          userId,
-          product:[{
-             productId,
-             quantity:Quantity || 1
-          }]
-       })
-       await cart.save()
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Check if user exists with this email AND role
+    let user = await User.findOne({ email, role });
+
+    if (user) {
+      // Existing user — just update OTP
+      user.otp = otp;
+      await user.save();
+    } else {
+      // New user trying to register
+      if (role === 'seller' && mode !== "register") {
+        return res.status(403).json({ message: "Seller not found. Please contact admin." });
       }
-      res.json("Product Added to cart successfully")
-    }catch(err){
-       console.log(err)
-    }
-}; 
 
-const fetchCartById=async(req,res)=>{
-  try{
-   const userId=req.headers.id;
-   const cartItems=await Cart.findOne({userId,status:"cart"}).populate('product.productId')
-   console.log(userId)
-   console.log(cartItems)
-   res.json(cartItems)
-  }catch(err){
-     console.log(err)
-   }
-};
-const deleteCartItem = async (req, res) => {
-  try {
-    const userId = req.headers.id;
-    const itemId = req.params.itemId; 
-
-    const updatedCart = await Cart.findOneAndUpdate(
-      { userId, status: "cart" },
-      { $pull: { product: { _id: itemId } } },
-      { new: true }
-    ).populate('product.productId');
-
-    if (!updatedCart) {
-      return res.status(404).json({ message: "Cart not found" });
+      // Allow new registration (user or seller if mode === "register")
+      user = new User({ email, otp, role, phone,company });
+      await user.save();
     }
 
-    res.json({ message: "Item removed from cart", cart: updatedCart });
+    // Setup nodemailer transporter
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "santheepkrishna09@gmail.com",
+        pass: "pmoy xmcj jxma cwlz", // Gmail App Password
+      },
+    });
+
+    await transporter.sendMail({
+      from: "ShopinGO <santheepkrishna09@gmail.com>",
+      to: email,
+      subject: "Your ShopinGO OTP",
+      text: `Your OTP is ${otp}`,
+    });
+
+    console.log(`OTP ${otp} sent to ${email}`);
+    res.status(200).json({ message: "OTP sent successfully" });
+
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to delete item from cart" });
+    console.error("🔥 Error in sendOTP:", err);
+    res.status(500).json({ message: "Error sending OTP" });
   }
 };
 
 
 
 
-module.exports= {registerUser,loginUser,ViewProduct,AddCart,fetchCartById,deleteCartItem}
+const verifyOTP = async (req, res) => {
+  try {
+    const { email, otp, username, password } = req.body;
+    // In your verifyOTP controller, add:
+    
+    const user = await User.findOne({ email });
+    console.log("User document:", user);
+
+    if (!user || user.otp !== otp) {
+      return res.status(401).json({ message: "Invalid OTP" });
+    }
+
+    // Update user details if they're registering
+    if (username) user.username = username;
+    if (password) user.password = password;
+
+    user.otp = null; // clear OTP
+    await user.save();
+
+    const token = jwt.sign(
+      { 
+        id: user._id, 
+        role: user.role,
+        username: user.username // Ensure username is included in token
+      },
+      process.env.JWT_SECRET_KEY, 
+      { expiresIn: '1hr' }
+    );
+
+    res.json({ 
+      token, 
+      role: user.role,
+      username: user.username, // Send username in response
+      message: "OTP verified & user registered" 
+    });
+
+  } catch (err) {
+    console.error("OTP Verification Error:", err);
+    res.status(500).json({ message: "Server error during OTP verification" });
+  }
+};
+
+const loginWithPassword = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user || user.password !== password) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    const token = jwt.sign(
+      { 
+        id: user._id, 
+        role: user.role,
+        username: user.username // Ensure username is included in token
+      },
+      process.env.JWT_SECRET_KEY, 
+      { expiresIn: '1hr' }
+    );
+
+    res.json({ 
+      token, 
+      role: user.role, 
+      username: user.username, // Send username in response
+      message: "Login successful" 
+    });
+  } catch (err) {
+    console.error("Login Error:", err);
+    res.status(500).json({ message: "Server error during login" });
+  }
+};
+
+module.exports={loginWithPassword,verifyOTP,sendOTP}

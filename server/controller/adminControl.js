@@ -1,115 +1,47 @@
-const User = require('../model/user');
-const Product = require('../model/productmodel');
-const Order = require('../model/order')
-const getalluser = async (req, res) => {
-  try {
-    const users = await User.find();
-    res.status(200).json(users);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+
+const DEFAULT_ADMIN = {
+  username: 'admin',
+  password: 'admin@123', // 🔒 Default password
 };
 
-const delUser = async (req, res) => {
+const generateToken = (admin) => {
+  return jwt.sign(
+    {
+      username: admin.username,
+      role: 'admin'
+    },
+    process.env.JWT_SECRET_KEY,
+    { expiresIn: '1hr' }
+  );
+};
+
+const adminLogin = async (req, res) => {
+  const { username, password } = req.body;
+
   try {
-    const id = req.headers.userid;
-    await User.findByIdAndDelete(id);
-    res.json("User deleted successfully");
+    if (
+      username === DEFAULT_ADMIN.username &&
+      password === DEFAULT_ADMIN.password
+    ) {
+      const token = generateToken(DEFAULT_ADMIN);
+
+      return res.json({
+        message: 'Admin login successful',
+        token,
+        username: DEFAULT_ADMIN.username,
+        role: 'admin'
+      });
+    } else {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Admin Login Error:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
-const addProduct = async (req, res) => {
-  try {
-    const { productName, productPrice, productDescription, productQuantity } = req.body;
-    const image = req.file.filename;
-
-    const newProduct = new Product({
-      productName,
-      productPrice,
-      productDescription,
-      productQuantity,
-      image
-    });
-
-    await newProduct.save();
-    res.json({ message: "Product added successfully", status: 200 });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+module.exports = {
+  adminLogin
 };
-
-const ViewProduct = async (req, res) => {
-  try {
-    const products = await Product.find();
-    res.json(products);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-const EditProductbyid = async(req,res)=>{
-  try{
-    const id= req.params.id
-    const product = await Product.findById({_id:id});
-    res.json(product)
-  }catch(err){
-    console.log(err)
-  }
-}
-const UpdateProductbyid = async(req,res)=>{
-  try{
-    const id= req.params.id
-    const {productName,productPrice,productDescription,productQuantity}=req.body;
-    const image=req.file.filename;
-    const product = await Product.findByIdAndUpdate(id,{
-      productName,
-      productPrice,
-      productDescription,
-      productQuantity,
-      image:image
-    });
-    await product.save()
-    res.json({message:"product updated successfully",status:200})
-  }catch(err){
-    console.log(err)
-  }
-}
-
-const DelProduct = async(req,res)=>{
-  try{
-    const id=req.params.id;
-    await Product.findByIdAndDelete(id)
-    res.json("Product deleted successfully")
-  }catch(error){
-    console.log(error)
-  }
-}
-
-const ViewOrder = async (req, res) => {
-  try {
-    const orders = await Order.find()
-      .populate('userId', 'username email')  // Populate user details
-      .populate('products.productId', 'productName');  // Populate product name
-
-    res.json(orders);
-  } catch (err) {
-    console.error("ViewOrder Error:", err);
-    res.status(500).json({ error: 'Failed to fetch orders' });
-  }
-};
-
-const updateStatus=async(req,res)=>{
-    try{
-        const id=req.headers._id
-        const {status}=req.body
-        const order=await Order.findById(id)
-        order.status=status
-        order.save()
-        res.json("Order status updated successfully")
-    }catch(err){
-        console.log(err)
-    }
-}
-
-module.exports = { getalluser, delUser, addProduct, ViewProduct,EditProductbyid,UpdateProductbyid,DelProduct,ViewOrder,updateStatus };
