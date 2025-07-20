@@ -13,8 +13,9 @@ const router = require('./router/userRoute')
 const adminRoute = require('./router/adminRouter')
 const sellerRoute = require('./router/sellerRouter')
 const productRouter = require('./router/productRouter')
-const cartRoute = require('./router/cartRouter')
-
+const cartrouter = require('./router/cartRouter')
+const checkoutrouter = require('./router/orderRouter')
+const Reviewrouter = require('./router/reviewRouter')
 // database connectivity code
 const dbconnect = async () => {
     try {
@@ -32,7 +33,9 @@ app.use('/api/admin', adminRoute)
 app.use('/api/user', router)
 app.use('/api/seller', sellerRoute)
 app.use('/api/product', productRouter)
-app.use('/api/cart', cartRoute)
+app.use('/api/cart',cartrouter)
+app.use("/api/order",checkoutrouter);
+app.use("/api/review",Reviewrouter);
 // do not give 6000 as PORT it arises issues
 app.listen(9000, () => {
     console.log("Server started successful")

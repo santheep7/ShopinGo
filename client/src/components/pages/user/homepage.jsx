@@ -2,16 +2,23 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Footer from "../../common/footer";
 import UserNavbar from "./navbar";
+import { useNavigate } from "react-router-dom";
 
 export default function UserHome() {
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState("");
-
-  const fetchAllProducts = async (categoryName = "") => {
+  const [searchTerm, setSearchTerm] = useState("");
+const navigate = useNavigate();
+  const fetchAllProducts = async (categoryName = "", search = "") => {
     try {
-      const res = await axios.get(`http://localhost:9000/api/product/products`, {
-        params: { category: categoryName },
+      const endpoint = search
+        ? `http://localhost:9000/api/product/search?q=${search}`
+        : `http://localhost:9000/api/product/products`;
+
+      const res = await axios.get(endpoint, {
+        params: search ? {} : { category: categoryName },
       });
+
       setProducts(res.data);
     } catch (err) {
       console.error("Error fetching products:", err);
@@ -19,22 +26,32 @@ export default function UserHome() {
   };
 
   useEffect(() => {
-    fetchAllProducts(); // Initial fetch
-  }, []);
+    if (searchTerm.trim() !== "") {
+      fetchAllProducts("", searchTerm);
+    } else {
+      fetchAllProducts(category);
+    }
+  }, [searchTerm, category]);
 
   const handleCategoryClick = (cat) => {
-    setCategory(cat);
-    fetchAllProducts(cat)
-  }
+    if (category === cat) {
+      setCategory("");
+      fetchAllProducts("");
+    } else {
+      setCategory(cat);
+      fetchAllProducts(cat);
+    }
+  };
+
   const handleAddToCart = async (productId) => {
     try {
-      const token = localStorage.getItem("token"); // assuming you're storing JWT
+      const token = localStorage.getItem("token");
 
-      const res = await axios.post(
-        "http://localhost:9000/api/cart/add-cart",
+      await axios.post(
+        "http://localhost:9000/api/cart/add",
         {
           productId,
-          quantity: 1, // default 1 for now
+          quantity: 1,
         },
         {
           headers: {
@@ -52,7 +69,8 @@ export default function UserHome() {
 
   return (
     <>
-      <UserNavbar />
+      <UserNavbar searchquery={setSearchTerm} />
+
       <div className="bg-gray-50 min-h-screen">
         {/* Hero Section */}
         <div className="relative w-full h-64 sm:h-80 md:h-[400px] bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-center">
@@ -62,7 +80,7 @@ export default function UserHome() {
           </div>
         </div>
 
-        {/* Categories (Optional) */}
+        {/* Categories */}
         <div className="max-w-6xl mx-auto px-4 py-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Top Categories</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -70,8 +88,9 @@ export default function UserHome() {
               <div
                 key={cat}
                 onClick={() => handleCategoryClick(cat)}
-                className={`bg-white shadow p-4 rounded-lg text-center hover:shadow-lg cursor-pointer transition ${category === cat ? "border-2 border-blue-600" : ""
-                  }`}
+                className={`bg-white shadow p-4 rounded-lg text-center hover:shadow-lg cursor-pointer transition ${
+                  category === cat ? "border-2 border-blue-600" : ""
+                }`}
               >
                 <p className="font-medium">{cat}</p>
               </div>
@@ -89,7 +108,8 @@ export default function UserHome() {
               {products.map((product) => (
                 <div
                   key={product._id}
-                  className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden"
+                  className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden cursor-pointer"
+                  onClick={() => navigate(`/ProductDetails/${product._id}`)}
                 >
                   <img
                     src={
@@ -105,10 +125,21 @@ export default function UserHome() {
                     <p className="text-sm text-gray-500 line-clamp-2">{product.productDescription}</p>
                     <div className="mt-2 flex justify-between items-center">
                       <span className="text-green-600 font-bold">₹{product.productPrice}</span>
+                      <div className="flex items-center mt-1">
+                        {[...Array(5)].map((_, i) => (
+                          <span key={i} className={`text-sm ${i < Math.round(product.averageRating) ? "text-yellow-500" : "text-gray-300"}`}>
+                            ★
+                          </span>
+                        ))}
+                        <span className="ml-2 text-xs text-gray-500">({product.averageRating || 0})</span>
+                      </div>
                       <span className="text-xs text-gray-400">Qty: {product.productQuantity}</span>
                     </div>
                     <button
-                      onClick={() => handleAddToCart(product._id)}
+                      onClick={(e) => {
+                        e.stopPropagation(); // prevent navigation on button click
+                        handleAddToCart(product._id);
+                      }}
                       className="mt-3 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
                     >
                       Add to Cart

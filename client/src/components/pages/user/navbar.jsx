@@ -1,18 +1,24 @@
 import { FaShoppingCart, FaSearch, FaUserCircle } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, Transition } from '@headlessui/react';
+import { useState } from 'react';
 
 export default function UserNavbar({ searchquery }) {
   const username = localStorage.getItem("username");
   const token = localStorage.getItem("token");
   const role = localStorage.getItem('role')
   const navigate = useNavigate();
+  const [input, setInput] = useState("");
 
   const isLoggedIn = !!token;
 
   const searchChange = (e) => {
-    searchquery?.(e.target.value);
+    const val = e.target.value;
+    setInput(val);
+    searchquery?.(val);
   };
+
+
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -42,7 +48,7 @@ export default function UserNavbar({ searchquery }) {
                 Home
               </Link>
               {isLoggedIn && (
-                <Link to="/viewuserorders" className="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                <Link to="/order" className="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                   My Orders
                 </Link>
               )}
@@ -59,9 +65,11 @@ export default function UserNavbar({ searchquery }) {
               <input
                 type="text"
                 placeholder="Search products..."
+                value={input}
                 onChange={searchChange}
                 className="block w-full pl-10 pr-3 py-2 border border-transparent rounded-md leading-5 bg-blue-500 bg-opacity-30 text-black placeholder-blue-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-white focus:text-gray-900 sm:text-sm transition-all duration-200"
               />
+
             </div>
 
             {/* Cart */}
@@ -108,9 +116,8 @@ export default function UserNavbar({ searchquery }) {
                           {({ active }) => (
                             <button
                               onClick={handleLogout}
-                              className={`w-full text-left px-4 py-2 text-sm ${
-                                active ? 'bg-gray-100' : ''
-                              } text-gray-700`}
+                              className={`w-full text-left px-4 py-2 text-sm ${active ? 'bg-gray-100' : ''
+                                } text-gray-700`}
                             >
                               Logout
                             </button>
@@ -123,9 +130,8 @@ export default function UserNavbar({ searchquery }) {
                           {({ active }) => (
                             <Link
                               to="/Login"
-                              className={`block px-4 py-2 text-sm ${
-                                active ? 'bg-gray-100' : ''
-                              } text-gray-700`}
+                              className={`block px-4 py-2 text-sm ${active ? 'bg-gray-100' : ''
+                                } text-gray-700`}
                             >
                               Sign In
                             </Link>
@@ -135,9 +141,8 @@ export default function UserNavbar({ searchquery }) {
                           {({ active }) => (
                             <Link
                               to="/reg"
-                              className={`block px-4 py-2 text-sm ${
-                                active ? 'bg-gray-100' : ''
-                              } text-gray-700`}
+                              className={`block px-4 py-2 text-sm ${active ? 'bg-gray-100' : ''
+                                } text-gray-700`}
                             >
                               Sign Up
                             </Link>

@@ -18,7 +18,7 @@ const productSchema = new mongoose.Schema({
   productQuantity: {
     type: Number,
     required: true,
-    trime: true
+    trim: true
   },
   category:
     { type: String, }, // ✅ category required
@@ -33,7 +33,7 @@ const productSchema = new mongoose.Schema({
   },
   sellerId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'users',
     required: true
   },
   rating: {

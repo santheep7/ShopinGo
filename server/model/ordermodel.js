@@ -1,43 +1,43 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'user_tbl', // Reference to user model
+    ref: "users",
     required: true
   },
   products: [
     {
-      productId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product', // Reference to product model
-        required: true
-      },
-      quantity: {
-        type: Number,
-        required: true,
-        default: 1
-      }
+      productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+      quantity: { type: Number, required: true }
     }
   ],
   totalAmount: {
     type: Number,
     required: true
   },
-  address: {
+  shippingAddress: {
     type: String,
     required: true
   },
-  payment: {
+  paymentMethod: {
     type: String,
-    enum: ['Online Payment', 'UPI', 'Card','COD'],
+    enum: ["Online", "COD"],
     required: true
   },
-  status: {
-    type: String,
-    enum: ['Processing', 'Shipped', 'Delivered', 'Cancelled'],
-    default: 'Processing'
-  }
-}, { timestamps: true }); // adds createdAt & updatedAt fields
+  razorpay_order_id: String,
+  razorpay_payment_id: String,
+  razorpay_signature: String,
 
-module.exports = mongoose.model('order', orderSchema);
+   status: {
+    type: String,
+    enum: ["processing", "shipped", "delivered", "cancelled"],
+    default: "processing"
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+module.exports = mongoose.model("Order", orderSchema);

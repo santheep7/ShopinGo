@@ -34,6 +34,7 @@ export default function Login() {
       localStorage.setItem('role', res.data.role);
       localStorage.setItem('username',res.data.username);
 
+
       if (res.data.role === 'admin') navigate('/adminhome');
       else if (res.data.role === 'seller') navigate('/Shome');
       else navigate('/');

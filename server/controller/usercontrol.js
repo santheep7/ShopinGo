@@ -84,7 +84,7 @@ const verifyOTP = async (req, res) => {
         username: user.username // Ensure username is included in token
       },
       process.env.JWT_SECRET_KEY, 
-      { expiresIn: '1hr' }
+      { expiresIn: '10hr' }
     );
 
     res.json({ 

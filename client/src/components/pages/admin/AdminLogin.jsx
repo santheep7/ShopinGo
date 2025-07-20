@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
+import { Eye, EyeOff } from 'lucide-react';
 export default function AdminLogin() {
+  const [showPassword,setShowPassword] = useState(false)
   const [adminData, setAdminData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -10,11 +11,13 @@ export default function AdminLogin() {
   const handleChange = (e) => {
     setAdminData({ ...adminData, [e.target.name]: e.target.value });
   };
+  const togglePassword = () => setShowPassword((prev) => !prev);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
+    
     try {
       const res = await axios.post('http://localhost:9000/api/admin/admin-login', adminData);
 
@@ -50,17 +53,27 @@ export default function AdminLogin() {
             />
           </div>
 
-          <div>
-            <label className="block mb-1 text-sm font-medium text-gray-600">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={adminData.password}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none"
-            />
-          </div>
+         <div>
+      <label className="block mb-1 text-sm font-medium text-gray-600">Password</label>
+      <div className="relative">
+        <input
+          type={showPassword ? 'text' : 'password'}
+          name="password"
+          value={adminData.password}
+          onChange={handleChange}
+          required
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none pr-10"
+        />
+        <button
+          type="button"
+          onClick={togglePassword}
+          className="absolute right-3 top-2.5 text-gray-500 hover:text-gray-700"
+        >
+          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+        </button>
+      </div>
+    </div>
+
 
           <button
             type="submit"
