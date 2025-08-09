@@ -3,22 +3,40 @@ const User = require('../model/user');
 const Order = require('../model/ordermodel');
 
 // 1. Add product
+const cloudinary = require('../Config/cloudinary');
+
 const addProduct = async (req, res) => {
   try {
     const { productName, productPrice, productDescription } = req.body;
 
-    if (!req.file) return res.status(400).json({ message: 'Product image is required' });
+    if (!req.file) {
+      return res.status(400).json({ message: 'Product image is required' });
+    }
 
+    // Upload the file buffer to Cloudinary
+    const uploadResult = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { folder: 'products' },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      stream.end(req.file.buffer);
+    });
+
+    // Create and save product
     const product = new Product({
       productName,
       productPrice,
       productDescription,
       sellerId: req.user.id,
-      image: req.file.filename
+      image: uploadResult.secure_url // Save Cloudinary URL instead of filename
     });
 
     await product.save();
     res.status(201).json({ message: 'Product added successfully', product });
+
   } catch (err) {
     console.error("Error in addProduct:", err);
     res.status(500).json({ message: "Failed to add product" });
@@ -42,19 +60,37 @@ const updateProductBySeller = async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
 
-    if (req.file) {
-      updates.image = req.file.filename;
+    const product = await Product.findOne({ _id: id, sellerId: req.user.id });
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found or unauthorized' });
     }
 
-    const product = await Product.findOneAndUpdate(
-      { _id: id, sellerId: req.user.id },
-      updates,
-      { new: true }
-    );
+    // If there's a new image, upload to Cloudinary
+    if (req.file) {
+      // Optional: delete old image from Cloudinary (if you store public_id in DB)
+      if (product.imagePublicId) {
+        await cloudinary.uploader.destroy(product.imagePublicId);
+      }
 
-    if (!product) return res.status(404).json({ message: 'Product not found or unauthorized' });
+      const uploadResult = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: 'products' },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        stream.end(req.file.buffer);
+      });
 
-    res.json({ message: 'Product updated', product });
+      updates.image = uploadResult.secure_url;
+      updates.imagePublicId = uploadResult.public_id; // Store for future deletion
+    }
+
+    // Update the product
+    const updatedProduct = await Product.findByIdAndUpdate(id, updates, { new: true });
+
+    res.json({ message: 'Product updated', product: updatedProduct });
   } catch (err) {
     console.error("Error in updateProductBySeller:", err);
     res.status(500).json({ message: "Failed to update product" });
@@ -66,11 +102,21 @@ const deleteProductBySeller = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const deleted = await Product.findOneAndDelete({ _id: id, sellerId: req.user.id });
+    // Find product by seller
+    const product = await Product.findOne({ _id: id, sellerId: req.user.id });
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found or unauthorized' });
+    }
 
-    if (!deleted) return res.status(404).json({ message: 'Product not found or unauthorized' });
+    // If the product has an image in Cloudinary, delete it
+    if (product.imagePublicId) {
+      await cloudinary.uploader.destroy(product.imagePublicId);
+    }
 
-    res.json({ message: 'Product deleted' });
+    // Delete the product from DB
+    await Product.deleteOne({ _id: id, sellerId: req.user.id });
+
+    res.json({ message: 'Product deleted successfully' });
   } catch (err) {
     console.error("Error in deleteProductBySeller:", err);
     res.status(500).json({ message: "Failed to delete product" });

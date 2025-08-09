@@ -67,15 +67,14 @@ export default function OrderPage() {
 
                 <div className="flex items-center gap-2">
                   <span
-                    className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                      order.status === "processing"
+                    className={`px-3 py-1 text-xs font-semibold rounded-full ${order.status === "processing"
                         ? "bg-yellow-100 text-yellow-800"
                         : order.status === "shipped"
-                        ? "bg-blue-100 text-blue-800"
-                        : order.status === "delivered"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-700"
-                    }`}
+                          ? "bg-blue-100 text-blue-800"
+                          : order.status === "delivered"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-700"
+                      }`}
                   >
                     {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                   </span>
@@ -100,10 +99,11 @@ export default function OrderPage() {
                       className="flex gap-4 p-4 border border-gray-100 rounded-lg shadow-sm"
                     >
                       <img
-                        src={`${BASE_URL}/uploads/${product.image}`}
-                        alt={product.name}
-                        className="w-16 h-16 object-cover rounded"
+                        src={product.image}
+                        alt={product.productName}
+                        className="h-48 w-full object-cover"
                       />
+
                       <div className="flex-1">
                         <h2 className="font-semibold">{product?.name}</h2>
                         <p className="text-sm text-gray-600">

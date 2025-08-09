@@ -36,6 +36,10 @@ const productSchema = new mongoose.Schema({
     ref: 'users',
     required: true
   },
+  imagePublicId: {
+    type: String, // Cloudinary public ID
+    required: true
+  },
   rating: {
     type: Number,
     defualt: 0

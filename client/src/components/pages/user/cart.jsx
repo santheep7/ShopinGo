@@ -103,10 +103,11 @@ export default function Cart() {
                   >
                     <div className="flex items-center space-x-4">
                       <img
-                        src={`${BASE_URL}/uploads/${product.image}`}
+                        src={product.image}
                         alt={product.productName}
                         className="w-16 h-16 object-cover rounded"
                       />
+
                       <div>
                         <h2 className="font-semibold">{product.productName}</h2>
                         <p>₹{product.productPrice} × {item.quantity}</p>

@@ -9,7 +9,7 @@ export default function UserHome() {
   const [category, setCategory] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const BASE_URL = import.meta.env.VITE_BASE_API_URL
-const navigate = useNavigate();
+  const navigate = useNavigate();
   const fetchAllProducts = async (categoryName = "", search = "") => {
     try {
       const endpoint = search
@@ -89,9 +89,8 @@ const navigate = useNavigate();
               <div
                 key={cat}
                 onClick={() => handleCategoryClick(cat)}
-                className={`bg-white shadow p-4 rounded-lg text-center hover:shadow-lg cursor-pointer transition ${
-                  category === cat ? "border-2 border-blue-600" : ""
-                }`}
+                className={`bg-white shadow p-4 rounded-lg text-center hover:shadow-lg cursor-pointer transition ${category === cat ? "border-2 border-blue-600" : ""
+                  }`}
               >
                 <p className="font-medium">{cat}</p>
               </div>
@@ -113,14 +112,11 @@ const navigate = useNavigate();
                   onClick={() => navigate(`/ProductDetails/${product._id}`)}
                 >
                   <img
-                    src={
-                      product.image?.startsWith("http")
-                        ? product.image
-                        : `${BASE_URL}/uploads/${product.image}`
-                    }
+                    src={product.image}
                     alt={product.productName}
                     className="h-48 w-full object-cover"
                   />
+
                   <div className="p-4">
                     <h3 className="text-lg font-semibold text-gray-800 truncate">{product.productName}</h3>
                     <p className="text-sm text-gray-500 line-clamp-2">{product.productDescription}</p>

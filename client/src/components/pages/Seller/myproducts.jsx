@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 export default function ViewProducts() {
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
-    const BASE_URL = import.meta.env.VITE_BASE_API_URL
+  const BASE_URL = import.meta.env.VITE_BASE_API_URL
 
   useEffect(() => {
     const fetchSellerProducts = async () => {
@@ -58,10 +58,11 @@ export default function ViewProducts() {
               className="bg-white rounded-xl shadow-md overflow-hidden transition hover:shadow-lg"
             >
               <img
-                src={product.image?.startsWith('http') ? product.image : `${BASE_URL}/uploads/${product.image}`}
+                src={product.image}
                 alt={product.productName}
                 className="h-48 w-full object-cover"
               />
+
 
               <div className="p-5 space-y-2">
                 <div className="flex justify-between items-start">

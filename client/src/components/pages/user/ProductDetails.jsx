@@ -33,7 +33,12 @@ export default function ProductDetails() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-2">{product.productName}</h1>
-      <img src={`${BASE_URL}/uploads/${product.image}`} className="w-full h-80 object-cover rounded-lg" alt="" />
+      <img
+        src={product.image}
+        alt={product.productName}
+        className="h-48 w-full object-cover"
+      />
+
       <p className="mt-4 text-gray-700">{product.productDescription}</p>
       <p className="mt-2 text-lg font-semibold text-green-600">₹{product.productPrice}</p>
 

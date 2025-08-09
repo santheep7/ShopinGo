@@ -40,7 +40,8 @@ export default function EditProduct() {
             status: product.status || "active",
             image: null,
           });
-          setPreviewImage(`${BASE_URL}/uploads/${product.image}`);
+          setPreviewImage(product.image);
+
         }
       } catch (err) {
         console.error("Error loading product:", err);
