@@ -7,13 +7,16 @@ const cloudinary = require('../Config/cloudinary');
 
 const addProduct = async (req, res) => {
   try {
-    const { productName, productPrice, productDescription } = req.body;
+    const { productName, productPrice, productDescription, productQuantity } = req.body;
 
     if (!req.file) {
       return res.status(400).json({ message: 'Product image is required' });
     }
+    if (!productQuantity) {
+      return res.status(400).json({ message: 'Product quantity is required' });
+    }
 
-    // Upload the file buffer to Cloudinary
+    // Upload image to Cloudinary
     const uploadResult = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         { folder: 'products' },
@@ -30,8 +33,10 @@ const addProduct = async (req, res) => {
       productName,
       productPrice,
       productDescription,
+      productQuantity, // ✅ now included
       sellerId: req.user.id,
-      image: uploadResult.secure_url // Save Cloudinary URL instead of filename
+      image: uploadResult.secure_url, // Cloudinary URL
+      imagePublicId: uploadResult.public_id // ✅ now included
     });
 
     await product.save();
@@ -42,6 +47,7 @@ const addProduct = async (req, res) => {
     res.status(500).json({ message: "Failed to add product" });
   }
 };
+
 
 // 2. Get all products by this seller
 const getSellerProducts = async (req, res) => {
