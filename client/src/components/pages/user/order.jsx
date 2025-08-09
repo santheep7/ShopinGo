@@ -100,7 +100,7 @@ export default function OrderPage() {
                       className="flex gap-4 p-4 border border-gray-100 rounded-lg shadow-sm"
                     >
                       <img
-                        src={`http://localhost:9000/uploads/${product.image}`}
+                        src={`${BASE_URL}/uploads/${product.image}`}
                         alt={product.name}
                         className="w-16 h-16 object-cover rounded"
                       />

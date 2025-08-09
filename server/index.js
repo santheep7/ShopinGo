@@ -19,7 +19,7 @@ const Reviewrouter = require('./router/reviewRouter')
 // database connectivity code
 const dbconnect = async () => {
     try {
-        await mongoose.connect(process.env.database_connection)
+        await mongoose.connect(process.env.database_conn)
         console.log("Database connected successfully")
     }
     catch (error) {

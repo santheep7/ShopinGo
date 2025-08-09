@@ -9,8 +9,33 @@ const razorpay = new Razorpay({
 });
 
 exports.createOrder = async (req, res) => {
-  const { amount } = req.body;
   try {
+    const { paymentMethod, amount, products, shippingAddress } = req.body;
+    const userId = req.user.id;
+
+    if (paymentMethod === "COD") {
+      // Directly create an order in DB without Razorpay
+      const newOrder = new Order({
+        userId,
+        products: products.map(item => ({
+          productId: item.productId._id || item.productId,
+          quantity: item.quantity
+        })),
+        totalAmount: amount,
+        shippingAddress,
+        paymentMethod: "COD",
+        status: "processing"
+      });
+
+      await newOrder.save();
+
+      // Clear cart
+      await Cart.findOneAndUpdate({ userId }, { items: [] });
+
+      return res.status(201).json({ success: true, message: "COD order placed", order: newOrder });
+    }
+
+    // ✅ Razorpay path for online payments
     const options = {
       amount: amount * 100, // in paise
       currency: "INR",
@@ -19,10 +44,13 @@ exports.createOrder = async (req, res) => {
 
     const order = await razorpay.orders.create(options);
     res.status(200).json(order);
+
   } catch (err) {
-    res.status(500).json({ message: "Failed to create Razorpay order", error: err });
+    console.error("Create Order Error:", err);
+    res.status(500).json({ message: "Failed to create order", error: err.message });
   }
 };
+
 
 exports.verifyAndSaveOrder = async (req, res) => {
   try {
