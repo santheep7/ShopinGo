@@ -7,7 +7,7 @@ const cloudinary = require('../Config/cloudinary');
 
 const addProduct = async (req, res) => {
   try {
-    const { productName, productPrice, productDescription, productQuantity } = req.body;
+    const { productName, productPrice, productDescription, productQuantity,Brand } = req.body;
 
     if (!req.file) {
       return res.status(400).json({ message: 'Product image is required' });
@@ -33,6 +33,7 @@ const addProduct = async (req, res) => {
       productName,
       productPrice,
       productDescription,
+      Brand,
       productQuantity, // ✅ now included
       sellerId: req.user.id,
       image: uploadResult.secure_url, // Cloudinary URL
