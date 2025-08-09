@@ -4,13 +4,14 @@ import axios from "axios";
 export default function ReviewForm({ productId, onReviewSubmitted }) {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
+  const BASE_URL = import.meta.env.VITE_BASE_API_URL
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
     try {
       await axios.post(
-        "http://localhost:9000/api/review/add",
+        `${BASE_URL}/api/review/add`,
         { productId, rating, comment },
         { headers: { Authorization: `Bearer ${token}` } }
       );

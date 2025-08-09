@@ -17,12 +17,13 @@ export default function EditProduct() {
   });
 
   const [previewImage, setPreviewImage] = useState("");
+  const BASE_URL = import.meta.env.VITE_BASE_API_URL
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get(`http://localhost:9000/api/seller/my-products`, {
+        const res = await axios.get(`${BASE_URL}/api/seller/my-products`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -39,7 +40,7 @@ export default function EditProduct() {
             status: product.status || "active",
             image: null,
           });
-          setPreviewImage(`http://localhost:9000/uploads/${product.image}`);
+          setPreviewImage(`${BASE_URL}/uploads/${product.image}`);
         }
       } catch (err) {
         console.error("Error loading product:", err);
@@ -69,7 +70,7 @@ export default function EditProduct() {
     }
 
     try {
-      await axios.put(`http://localhost:9000/api/seller/update-product/${id}`, data, {
+      await axios.put(`${BASE_URL}/api/seller/update-product/${id}`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

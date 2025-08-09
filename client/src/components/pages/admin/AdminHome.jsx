@@ -25,11 +25,13 @@ export default function AdminHome() {
     Product: 0,
     pendingApprovals: 0,
   });
+    const BASE_URL = import.meta.env.VITE_BASE_API_URL
+
    useEffect(() => {
     const fetchSummary = async () => {
       const token = localStorage.getItem('token');
       try {
-        const res = await axios.get('http://localhost:9000/api/admin/getadmin-summary', {
+        const res = await axios.get(`${BASE_URL}/api/admin/getadmin-summary`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

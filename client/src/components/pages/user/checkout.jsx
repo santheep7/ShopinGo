@@ -6,10 +6,11 @@ export default function CheckoutPage() {
   const [cart, setCart] = useState([]);
   const [shippingAddress, setShippingAddress] = useState("");
   const [phone, setPhone] = useState("");
+  const BASE_URL = import.meta.env.VITE_BASE_API_URL
 
   useEffect(() => {
     axios
-      .get("http://localhost:9000/api/cart/get", {
+      .get(`${BASE_URL}/api/cart/get`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((res) => setCart(res.data.items))
@@ -34,7 +35,7 @@ export default function CheckoutPage() {
     };
 
     const orderRes = await axios.post(
-      "http://localhost:9000/api/order/create",
+      `${BASE_URL}/api/order/create`,
       orderData,
       {
         headers: {
@@ -54,7 +55,7 @@ export default function CheckoutPage() {
       order_id: order.id,
       handler: async function (response) {
         await axios.post(
-          "http://localhost:9000/api/order/verify",
+          `${BASE_URL}/api/order/verify`,
           {
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,

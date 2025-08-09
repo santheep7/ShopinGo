@@ -20,6 +20,7 @@ export default function RegisterPage() {
   const [error, setError] = useState({});
   const [otpSent, setOtpSent] = useState(false);
   const navigate = useNavigate();
+  const BASE_URL = import.meta.env.VITE_BASE_API_URL
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -75,7 +76,7 @@ export default function RegisterPage() {
     }
 
     try {
-      await AXIOS.post('http://localhost:9000/api/user/send-otp', {
+      await AXIOS.post(`${BASE_URL}/api/user/send-otp`, {
         email: record.email,
         role: record.role,
         phone: record.phone,
@@ -99,7 +100,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const res = await AXIOS.post('http://localhost:9000/api/user/verify-otp', record);
+      const res = await AXIOS.post(`${BASE_URL}/api/user/verify-otp`, record);
       toast.success("Registered successfully");
       setTimeout(() => navigate("/Login"), 2000);
     } catch (err) {

@@ -37,6 +37,7 @@ app.use('/api/cart',cartrouter)
 app.use("/api/order",checkoutrouter);
 app.use("/api/review",Reviewrouter);
 // do not give 6000 as PORT it arises issues
-app.listen(9000, () => {
-    console.log("Server started successful")
+const port = process.env.PORT || 9000;
+app.listen(port,()=>{
+    console.log("Server:9000 Started Successfully")
 })

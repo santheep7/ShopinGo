@@ -7,6 +7,7 @@ export default function AdminLogin() {
   const [adminData, setAdminData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const BASE_URL = import.meta.env.VITE_BASE_API_URL
 
   const handleChange = (e) => {
     setAdminData({ ...adminData, [e.target.name]: e.target.value });
@@ -19,7 +20,7 @@ export default function AdminLogin() {
     setError('');
     
     try {
-      const res = await axios.post('http://localhost:9000/api/admin/admin-login', adminData);
+      const res = await axios.post(`${BASE_URL}/api/admin/admin-login`, adminData);
 
       if (res.data.token && res.data.role === 'admin') {
         localStorage.setItem('token', res.data.token);

@@ -3,12 +3,13 @@ import axios from "axios";
 
 export default function OrderPage() {
   const [orders, setOrders] = useState([]);
+  const BASE_URL = import.meta.env.VITE_BASE_API_URL
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:9000/api/order/user", {
+        const res = await axios.get(`${BASE_URL}/api/order/user`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -25,7 +26,7 @@ export default function OrderPage() {
   const handleCancel = async (orderId) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.put(`http://localhost:9000/api/order/cancel/${orderId}`, {}, {
+      await axios.put(`${BASE_URL}/api/order/cancel/${orderId}`, {}, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

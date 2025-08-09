@@ -8,12 +8,13 @@ export default function UserHome() {
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const BASE_URL = import.meta.env.VITE_BASE_API_URL
 const navigate = useNavigate();
   const fetchAllProducts = async (categoryName = "", search = "") => {
     try {
       const endpoint = search
-        ? `http://localhost:9000/api/product/search?q=${search}`
-        : `http://localhost:9000/api/product/products`;
+        ? `${BASE_URL}/api/product/search?q=${search}`
+        : `${BASE_URL}/api/product/products`;
 
       const res = await axios.get(endpoint, {
         params: search ? {} : { category: categoryName },
@@ -48,7 +49,7 @@ const navigate = useNavigate();
       const token = localStorage.getItem("token");
 
       await axios.post(
-        "http://localhost:9000/api/cart/add",
+        `${BASE_URL}/api/cart/add`,
         {
           productId,
           quantity: 1,
@@ -115,7 +116,7 @@ const navigate = useNavigate();
                     src={
                       product.image?.startsWith("http")
                         ? product.image
-                        : `http://localhost:9000/uploads/${product.image}`
+                        : `${BASE_URL}/uploads/${product.image}`
                     }
                     alt={product.productName}
                     className="h-48 w-full object-cover"

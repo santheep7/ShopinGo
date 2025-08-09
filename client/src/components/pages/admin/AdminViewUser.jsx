@@ -11,7 +11,7 @@ export default function AdminUserList() {
   const fetchUsers = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await axios.get('http://localhost:9000/api/admin/admin-user', {
+      const res = await axios.get(`${BASE_URL}/api/admin/admin-user`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -23,38 +23,40 @@ export default function AdminUserList() {
       setLoading(false);
     }
   };
+  const BASE_URL = import.meta.env.VITE_BASE_API_URL
+
 
   const handleDelete = async (userId, index) => {
-  const confirmDelete = window.confirm('Are you sure you want to delete this user?');
-  if (!confirmDelete) return;
+    const confirmDelete = window.confirm('Are you sure you want to delete this user?');
+    if (!confirmDelete) return;
 
-  try {
-    const token = localStorage.getItem('token');
+    try {
+      const token = localStorage.getItem('token');
 
-    // Animate the row before deletion
-    const row = rowRefs.current[index];
-    if (row) {
-      await gsap.to(row, {
-        opacity: 0,
-        y: -20,
-        duration: 0.4,
-        ease: 'power2.inOut',
+      // Animate the row before deletion
+      const row = rowRefs.current[index];
+      if (row) {
+        await gsap.to(row, {
+          opacity: 0,
+          y: -20,
+          duration: 0.4,
+          ease: 'power2.inOut',
+        });
+      }
+
+      // Perform delete request
+      await axios.delete(`${BASE_URL}/api/admin/delete-user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
+      // Remove from state after animation
+      setUsers((prev) => prev.filter((u) => u._id !== userId));
+    } catch (err) {
+      console.error('Error deleting user:', err);
     }
-
-    // Perform delete request
-    await axios.delete(`http://localhost:9000/api/admin/delete-user/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    // Remove from state after animation
-    setUsers((prev) => prev.filter((u) => u._id !== userId));
-  } catch (err) {
-    console.error('Error deleting user:', err);
-  }
-};
+  };
 
 
   useEffect(() => {

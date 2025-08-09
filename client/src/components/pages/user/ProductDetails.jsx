@@ -7,17 +7,18 @@ export default function ProductDetails() {
   const [product, setProduct] = useState(null);
   const [purchased, setPurchased] = useState(false);
   const navigate = useNavigate();
+  const BASE_URL = import.meta.env.VITE_BASE_API_URL
 
   useEffect(() => {
     const fetchProduct = async () => {
-      const res = await axios.get(`http://localhost:9000/api/product/product/${id}`);
+      const res = await axios.get(`${BASE_URL}/api/product/product/${id}`);
 
       setProduct(res.data);
     };
 
     const checkIfPurchased = async () => {
       const token = localStorage.getItem("token");
-      const res = await axios.get(`http://localhost:9000/api/order/hasPurchased/${id}`, {
+      const res = await axios.get(`${BASE_URL}/api/order/hasPurchased/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPurchased(res.data.purchased);
@@ -32,7 +33,7 @@ export default function ProductDetails() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-2">{product.productName}</h1>
-      <img src={`http://localhost:9000/uploads/${product.image}`} className="w-full h-80 object-cover rounded-lg" alt="" />
+      <img src={`${BASE_URL}/uploads/${product.image}`} className="w-full h-80 object-cover rounded-lg" alt="" />
       <p className="mt-4 text-gray-700">{product.productDescription}</p>
       <p className="mt-2 text-lg font-semibold text-green-600">₹{product.productPrice}</p>
 

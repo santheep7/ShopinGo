@@ -8,11 +8,12 @@ import SellerNavbar from '../../common/sellernavbar';
 export default function SellerProfile() {
   const [seller, setSeller] = useState(null);
   const hasCelebrated = useRef(false); // prevents confetti on every render
+  const BASE_URL = import.meta.env.VITE_BASE_API_URL
 
   const fetchSellerProfile = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await axios.get('http://localhost:9000/api/seller/profile', {
+      const res = await axios.get(`${BASE_URL}/api/seller/profile`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -44,11 +44,12 @@ export default function AdminViewSellers() {
       console.error('Error deleting seller:', err);
     }
   };
+  const BASE_URL = import.meta.env.VITE_BASE_API_URL
 
   const handleVerify = async (sellerId) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:9000/api/admin/verify-seller/${sellerId}`, {}, {
+      await axios.put(`${BASE_URL}/api/admin/verify-seller/${sellerId}`, {}, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -115,11 +116,10 @@ export default function AdminViewSellers() {
                   <td className="py-3 px-5">{seller.company || '-'}</td>
                   <td className="py-3 px-5 capitalize text-sm">
                     <span
-                      className={`px-2 py-1 rounded-full ${
-                        seller.status === 'approved'
+                      className={`px-2 py-1 rounded-full ${seller.status === 'approved'
                           ? 'bg-green-100 text-green-700'
                           : 'bg-yellow-100 text-yellow-700'
-                      }`}
+                        }`}
                     >
                       {seller.status}
                     </span>

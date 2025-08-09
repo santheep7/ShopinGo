@@ -13,11 +13,13 @@ import { useNavigate } from 'react-router-dom';
 export default function ViewProducts() {
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
+    const BASE_URL = import.meta.env.VITE_BASE_API_URL
+
   useEffect(() => {
     const fetchSellerProducts = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('http://localhost:9000/api/seller/my-products', {
+        const res = await axios.get(`${BASE_URL}/api/seller/my-products`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setProducts(res.data);
@@ -26,13 +28,14 @@ export default function ViewProducts() {
       }
     };
 
+
     fetchSellerProducts();
   }, []);
 
   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:9000/api/seller/delete-product/${id}`, {
+      await axios.delete(`${BASE_URL}/api/seller/delete-product/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProducts(products.filter((product) => product._id !== id));
@@ -55,7 +58,7 @@ export default function ViewProducts() {
               className="bg-white rounded-xl shadow-md overflow-hidden transition hover:shadow-lg"
             >
               <img
-                src={product.image?.startsWith('http') ? product.image : `http://localhost:9000/uploads/${product.image}`}
+                src={product.image?.startsWith('http') ? product.image : `${BASE_URL}/uploads/${product.image}`}
                 alt={product.productName}
                 className="h-48 w-full object-cover"
               />

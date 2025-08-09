@@ -22,6 +22,7 @@ export default function AddProduct() {
   const handleFileChange = (e) => {
     setFormData((prev) => ({ ...prev, image: e.target.files[0] }));
   };
+  const BASE_URL = import.meta.env.VITE_BASE_API_URL
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,7 +31,7 @@ export default function AddProduct() {
     for (let key in formData) data.append(key, formData[key]);
 
     try {
-      await axios.post('http://localhost:9000/api/seller/add-product', data, {
+      await axios.post(`${BASE_URL}/api/seller/add-product`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

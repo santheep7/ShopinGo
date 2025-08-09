@@ -12,7 +12,7 @@ export default function Login() {
 
   const handleSendOTP = async () => {
   try {
-    const res = await axios.post('http://localhost:9000/api/user/send-otp', { email, role });
+    const res = await axios.post(`${BASE_URL}/api/user/send-otp`, { email, role });
     toast.success("OTP Sent to Registered email..!");
     setStep('otpSent');
   } catch (err) {
@@ -20,6 +20,7 @@ export default function Login() {
     toast.error(msg);
   }
 };
+const BASE_URL = import.meta.env.VITE_BASE_API_URL
 
   const handleLogin = async () => {
     try {
@@ -28,7 +29,7 @@ export default function Login() {
         ? { email, password: input }
         : { email, otp: input };
 
-      const res = await axios.post(`http://localhost:9000/api/user/${endpoint}`, payload);
+      const res = await axios.post(`${BASE_URL}/api/user/${endpoint}`, payload);
       console.log("Full response:", res.data);;
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('role', res.data.role);

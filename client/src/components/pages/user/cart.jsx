@@ -8,9 +8,10 @@ export default function Cart() {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate()
+  const BASE_URL = import.meta.env.VITE_BASE_API_URL
   const fetchCart = async () => {
     try {
-      const res = await axios.get("http://localhost:9000/api/cart/get", {
+      const res = await axios.get(`${BASE_URL}/api/cart/get`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
       });
 
@@ -24,7 +25,7 @@ export default function Cart() {
 
   const removeItem = async (productId) => {
     try {
-      await axios.delete(`http://localhost:9000/api/cart/remove/${productId}`, {
+      await axios.delete(`${BASE_URL}/api/cart/remove/${productId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`
         }
@@ -66,7 +67,7 @@ export default function Cart() {
                 >
                   <div className="flex items-center space-x-4">
                     <img
-                      src={`http://localhost:9000/uploads/${product.image}`}
+                      src={`${BASE_URL}/uploads/${product.image}`}
                       alt={product.productName}
                       className="w-16 h-16 object-cover rounded"
                     />
