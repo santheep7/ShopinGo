@@ -108,9 +108,16 @@ export default function UserHome() {
               {products.map((product) => (
                 <div
                   key={product._id}
-                  className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden cursor-pointer"
+                  className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden cursor-pointer relative"
                   onClick={() => navigate(`/ProductDetails/${product._id}`)}
                 >
+                  {/* Out of Stock Ribbon */}
+                  {product.productQuantity === 0 && (
+                    <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
+                      Out of Stock
+                    </div>
+                  )}
+
                   <img
                     src={product.image}
                     alt={product.productName}
@@ -120,11 +127,15 @@ export default function UserHome() {
                   <div className="p-4">
                     <h3 className="text-lg font-semibold text-gray-800 truncate">{product.productName}</h3>
                     <p className="text-sm text-gray-500 line-clamp-2">{product.productDescription}</p>
+
                     <div className="mt-2 flex justify-between items-center">
                       <span className="text-green-600 font-bold">₹{product.productPrice}</span>
                       <div className="flex items-center mt-1">
                         {[...Array(5)].map((_, i) => (
-                          <span key={i} className={`text-sm ${i < Math.round(product.averageRating) ? "text-yellow-500" : "text-gray-300"}`}>
+                          <span
+                            key={i}
+                            className={`text-sm ${i < Math.round(product.averageRating) ? "text-yellow-500" : "text-gray-300"}`}
+                          >
                             ★
                           </span>
                         ))}
@@ -132,18 +143,27 @@ export default function UserHome() {
                       </div>
                       <span className="text-xs text-gray-400">Qty: {product.productQuantity}</span>
                     </div>
+
+                    {/* Add to Cart Button */}
                     <button
                       onClick={(e) => {
-                        e.stopPropagation(); // prevent navigation on button click
-                        handleAddToCart(product._id);
+                        e.stopPropagation();
+                        if (product.productQuantity > 0) {
+                          handleAddToCart(product._id);
+                        }
                       }}
-                      className="mt-3 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+                      disabled={product.productQuantity === 0}
+                      className={`mt-3 w-full py-2 rounded transition ${product.productQuantity === 0
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-blue-600 hover:bg-blue-700 text-white"
+                        }`}
                     >
-                      Add to Cart
+                      {product.productQuantity === 0 ? "Out of Stock" : "Add to Cart"}
                     </button>
                   </div>
                 </div>
               ))}
+
             </div>
           )}
         </div>

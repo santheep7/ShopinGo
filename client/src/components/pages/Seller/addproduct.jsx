@@ -7,13 +7,13 @@ export default function AddProduct() {
     productName: '',
     productDescription: '',
     productPrice: '',
-    category:'',
+    category: '',
     productQuantity: '',
     brand: '',
     image: null,
   });
 
-  const navigate =useNavigate();
+  const navigate = useNavigate();
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -119,17 +119,26 @@ export default function AddProduct() {
               placeholder="e.g. Nike, Samsung"
             />
           </div>
-           <div>
-            <label className="block text-sm font-medium text-gray-700">category</label>
-            <input
-              type="text"
+          {/* Category */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Category</label>
+            <select
               name="category"
               value={formData.category}
               onChange={handleChange}
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              placeholder="e.g. Electronics, fashion"
-            />
+              required
+            >
+              <option value="">Select Category</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Fashion">Fashion</option>
+              <option value="Home Appliances">Home Appliances</option>
+              <option value="Sports">Sports</option>
+              <option value="Books">Books</option>
+              <option value="Toys">Toys</option>
+            </select>
           </div>
+
 
           {/* Image Upload */}
           <div>
