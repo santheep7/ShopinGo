@@ -2,6 +2,7 @@ const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const Order = require("../model/ordermodel");
 const Cart = require("../model/cartmodel");
+const Product = require("../model/productmodel"); // 🆕 Added import
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -14,7 +15,6 @@ exports.createOrder = async (req, res) => {
     const userId = req.user.id;
 
     if (paymentMethod === "COD") {
-      // Directly create an order in DB without Razorpay
       const newOrder = new Order({
         userId,
         products: products.map(item => ({
@@ -29,15 +29,24 @@ exports.createOrder = async (req, res) => {
 
       await newOrder.save();
 
+      // 🆕 Reduce stock for each product
+      for (const item of products) {
+        await Product.findByIdAndUpdate(
+          item.productId._id || item.productId,
+          { $inc: { productQuantity: -item.quantity } },
+          { new: true }
+        );
+      }
+
       // Clear cart
       await Cart.findOneAndUpdate({ userId }, { items: [] });
 
       return res.status(201).json({ success: true, message: "COD order placed", order: newOrder });
     }
 
-    // ✅ Razorpay path for online payments
+    // Razorpay path for online payments
     const options = {
-      amount: amount * 100, // in paise
+      amount: amount * 100,
       currency: "INR",
       receipt: "receipt_" + new Date().getTime()
     };
@@ -51,7 +60,6 @@ exports.createOrder = async (req, res) => {
   }
 };
 
-
 exports.verifyAndSaveOrder = async (req, res) => {
   try {
     const {
@@ -64,9 +72,8 @@ exports.verifyAndSaveOrder = async (req, res) => {
       paymentMethod,
     } = req.body;
 
-    const userId = req.user.id; // ✅ extracted from token via `protect()` middleware
+    const userId = req.user.id;
 
-    // 🔐 Verify Razorpay Signature
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_SECRET)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
@@ -76,7 +83,6 @@ exports.verifyAndSaveOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid signature" });
     }
 
-    // 💾 Save order in DB
     const newOrder = new Order({
       userId,
       products: products.map((item) => ({
@@ -93,7 +99,16 @@ exports.verifyAndSaveOrder = async (req, res) => {
 
     await newOrder.save();
 
-    // 🧹 Clear user's cart after successful payment
+    // 🆕 Reduce stock for each product
+    for (const item of products) {
+      await Product.findByIdAndUpdate(
+        item.productId._id || item.productId,
+        { $inc: { productQuantity: -item.quantity } },
+        { new: true }
+      );
+    }
+
+    // Clear cart after payment
     await Cart.findOneAndUpdate({ userId }, { items: [] });
 
     return res.status(200).json({ success: true, message: "Order saved and cart cleared", order: newOrder });
@@ -104,17 +119,17 @@ exports.verifyAndSaveOrder = async (req, res) => {
   }
 };
 
-  exports.getUserOrders = async (req, res) => {
+exports.getUserOrders = async (req, res) => {
   try {
     const orders = await Order.find({ userId: req.user.id })
-      .populate("products.productId", "name image") // 👈 must populate image + name
+      .populate("products.productId", "name image")
       .sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch orders", error });
   }
 };
-// Cancel an order
+
 exports.cancelOrder = async (req, res) => {
   const { orderId } = req.params;
 
@@ -135,6 +150,7 @@ exports.cancelOrder = async (req, res) => {
     res.status(500).json({ message: "Error cancelling order", error });
   }
 };
+
 exports.hasPurchasedProduct = async (req, res) => {
   const userId = req.user.id;
   const { productId } = req.params;
@@ -148,6 +164,3 @@ exports.hasPurchasedProduct = async (req, res) => {
     res.status(500).json({ error: "Server Error" });
   }
 };
-
-
-
