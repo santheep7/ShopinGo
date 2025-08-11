@@ -222,6 +222,11 @@ const updateProductOrderStatus = async (req, res) => {
       return res.status(403).json({ message: "Unauthorized to update this product status" });
     }
 
+    // If status is missing, initialize it to current or default value
+    if (!productInOrder.status) {
+      productInOrder.status = 'processing'; // or any default you prefer
+    }
+
     if (productInOrder.status === 'cancelled') {
       return res.status(400).json({ message: "Cannot update status of a cancelled product" });
     }
@@ -235,6 +240,7 @@ const updateProductOrderStatus = async (req, res) => {
     res.status(500).json({ message: "Failed to update product status" });
   }
 };
+
 
 
 module.exports = {

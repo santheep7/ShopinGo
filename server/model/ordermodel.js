@@ -1,5 +1,3 @@
-const mongoose = require("mongoose");
-
 const orderSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -9,7 +7,12 @@ const orderSchema = new mongoose.Schema({
   products: [
     {
       productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
-      quantity: { type: Number, required: true }
+      quantity: { type: Number, required: true },
+      status: {
+        type: String,
+        enum: ["processing", "shipping", "delivered", "cancelled"],
+        default: "processing"
+      }
     }
   ],
   totalAmount: {
@@ -29,7 +32,7 @@ const orderSchema = new mongoose.Schema({
   razorpay_payment_id: String,
   razorpay_signature: String,
 
-   status: {
+  status: {
     type: String,
     enum: ["processing", "shipped", "delivered", "cancelled"],
     default: "processing"
@@ -39,5 +42,6 @@ const orderSchema = new mongoose.Schema({
     default: Date.now
   }
 });
+
 
 module.exports = mongoose.model("Order", orderSchema);

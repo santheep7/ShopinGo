@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Snackbar, Alert } from "@mui/material";
 
 export default function SellerOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Snackbar state
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // success | error
+
   const BASE_URL = import.meta.env.VITE_BASE_API_URL;
 
   useEffect(() => {
@@ -19,9 +26,16 @@ export default function SellerOrders() {
       setOrders(res.data || []);
     } catch (err) {
       console.error("Error fetching orders:", err);
+      showSnackbar("Failed to fetch orders", "error");
     } finally {
       setLoading(false);
     }
+  };
+
+  const showSnackbar = (message, severity = "success") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
   };
 
   const updateStatus = async (orderId, productId, status) => {
@@ -32,10 +46,16 @@ export default function SellerOrders() {
         { orderId, productId, status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      showSnackbar("Status updated successfully", "success");
       fetchOrders();
     } catch (err) {
       console.error("Error updating status:", err);
+      showSnackbar("Failed to update status", "error");
     }
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   if (loading) return <p>Loading orders...</p>;
@@ -111,6 +131,22 @@ export default function SellerOrders() {
           </div>
         ))
       )}
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
