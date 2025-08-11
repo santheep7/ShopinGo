@@ -4,7 +4,7 @@ import axios from "axios";
 export default function SellerOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
- const BASE_URL = import.meta.env.VITE_BASE_API_URL
+  const BASE_URL = import.meta.env.VITE_BASE_API_URL;
 
   useEffect(() => {
     fetchOrders();
@@ -16,7 +16,7 @@ export default function SellerOrders() {
       const res = await axios.get(`${BASE_URL}/api/seller/getorder`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setOrders(res.data);
+      setOrders(res.data || []);
     } catch (err) {
       console.error("Error fetching orders:", err);
     } finally {
@@ -32,7 +32,7 @@ export default function SellerOrders() {
         { orderId, productId, status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      fetchOrders(); // Refresh after update
+      fetchOrders();
     } catch (err) {
       console.error("Error updating status:", err);
     }
@@ -57,17 +57,20 @@ export default function SellerOrders() {
             }}
           >
             <p>
-              <strong>Customer:</strong> {order.user?.name} ({order.user?.email})
+              <strong>Customer:</strong>{" "}
+              {order.user?.name || "Unknown"} ({order.user?.email || "No email"})
             </p>
             <p>
               <strong>Order Date:</strong>{" "}
-              {new Date(order.createdAt).toLocaleString()}
+              {order.createdAt
+                ? new Date(order.createdAt).toLocaleString()
+                : "N/A"}
             </p>
             <p>
-              <strong>Payment:</strong> {order.paymentMethod}
+              <strong>Payment:</strong> {order.paymentMethod || "N/A"}
             </p>
 
-            {order.products.map((p) => (
+            {order.products?.map((p) => (
               <div
                 key={p.productId}
                 style={{
