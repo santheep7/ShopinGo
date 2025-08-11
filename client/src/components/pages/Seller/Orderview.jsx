@@ -58,7 +58,8 @@ export default function SellerOrders() {
           >
             <p>
               <strong>Customer:</strong>{" "}
-              {order.userId?.username || "Unknown"} ({order.userId?.email || "No email"})
+              {order.user?.username || "Unknown"} (
+              {order.user?.email || "No email"})
             </p>
             <p>
               <strong>Order Date:</strong>{" "}
