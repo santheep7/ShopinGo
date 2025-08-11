@@ -32,7 +32,7 @@ export default function SellerNavbar() {
           <AnimatedLink to="/Shome" label="Dashboard" />
           <AnimatedLink to="/addproduct" label="Add Product" />
           <AnimatedLink to="/myproducts" label="My Products" />
-          <AnimatedLink to="/orders" label="Orders" />
+          <AnimatedLink to="/Orderview" label="Orders" />
           <AnimatedLink to="/Profile" label="Profile" />
 
           <div className="relative">
