@@ -18,8 +18,10 @@ const AdminViewSellers = lazy(() => import('./components/pages/admin/AdminSeller
 const SellerProfile = lazy(() => import('./components/pages/Seller/Profile'))
 const CheckoutPage = lazy(() => import('./components/pages/user/checkout'))
 const OrderPage = lazy(() => import('./components/pages/user/order'))
-const ReviewForm = lazy(()=> import('./components/pages/user/reviewForm'))
-const ProductDetails = lazy(()=> import('./components/pages/user/ProductDetails'))
+const ReviewForm = lazy(() => import('./components/pages/user/reviewForm'))
+const ProductDetails = lazy(() => import('./components/pages/user/ProductDetails'))
+const SellerOrders = lazy(()=>('./components/pages/Seller/Orderview'));
+
 // const SearchResultsPage = lazy(()=>import('./components/pages/user/search'))
 function App() {
   return (
@@ -35,6 +37,8 @@ function App() {
           <Route path="/myproducts" element={<ViewProducts />} />
           <Route path="/updateproduct/:id" element={<EditProduct />} />
           <Route path="/Profile" element={<SellerProfile />} />
+          <Route path="/Orderview" element={<SellerOrders />} />
+
 
 
           {/* User pages */}
