@@ -20,7 +20,7 @@ const CheckoutPage = lazy(() => import('./components/pages/user/checkout'))
 const OrderPage = lazy(() => import('./components/pages/user/order'))
 const ReviewForm = lazy(() => import('./components/pages/user/reviewForm'))
 const ProductDetails = lazy(() => import('./components/pages/user/ProductDetails'))
-const SellerOrders = lazy(()=>('./components/pages/Seller/Orderview'));
+const SellerOrders = lazy(()=>import('./components/pages/Seller/Orderview'));
 
 // const SearchResultsPage = lazy(()=>import('./components/pages/user/search'))
 function App() {
