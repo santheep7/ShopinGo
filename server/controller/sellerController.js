@@ -239,11 +239,11 @@ const updateProductOrderStatus = async (req, res) => {
     }
 
     productInOrder.status = status;
+order.markModified('products'); // <-- add this line here
 
-    console.log("Updated product status to:", status);
+const savedOrder = await order.save();
+console.log("Order saved successfully:", savedOrder);
 
-    const savedOrder = await order.save();
-    console.log("Order saved successfully:", savedOrder);
 
     res.json({ message: "Product status updated successfully" });
   } catch (err) {
