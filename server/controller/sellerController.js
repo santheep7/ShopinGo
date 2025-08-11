@@ -203,14 +203,22 @@ const getSellerOrders = async (req, res) => {
 const updateProductOrderStatus = async (req, res) => {
   const { orderId, productId, status } = req.body;
 
+  console.log("Received update request:", { orderId, productId, status, userId: req.user.id });
+
   if (!['processing', 'shipping', 'delivered'].includes(status)) {
+    console.log("Invalid status provided:", status);
     return res.status(400).json({ message: "Invalid status" });
   }
 
   try {
     const order = await Order.findById(orderId).populate('products.productId');
 
-    if (!order) return res.status(404).json({ message: "Order not found" });
+    if (!order) {
+      console.log("Order not found with ID:", orderId);
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    console.log("Fetched order:", order);
 
     const productInOrder = order.products.find(p =>
       p.productId &&
@@ -219,20 +227,23 @@ const updateProductOrderStatus = async (req, res) => {
     );
 
     if (!productInOrder) {
+      console.log("Product not found in order or unauthorized. ProductId:", productId, "UserId:", req.user.id);
       return res.status(403).json({ message: "Unauthorized to update this product status" });
     }
 
-    // If status is missing, initialize it to current or default value
-    if (!productInOrder.status) {
-      productInOrder.status = 'processing'; // or any default you prefer
-    }
+    console.log("Current product status:", productInOrder.status);
 
     if (productInOrder.status === 'cancelled') {
+      console.log("Attempt to update cancelled product");
       return res.status(400).json({ message: "Cannot update status of a cancelled product" });
     }
 
     productInOrder.status = status;
-    await order.save();
+
+    console.log("Updated product status to:", status);
+
+    const savedOrder = await order.save();
+    console.log("Order saved successfully:", savedOrder);
 
     res.json({ message: "Product status updated successfully" });
   } catch (err) {
@@ -240,7 +251,6 @@ const updateProductOrderStatus = async (req, res) => {
     res.status(500).json({ message: "Failed to update product status" });
   }
 };
-
 
 
 module.exports = {
