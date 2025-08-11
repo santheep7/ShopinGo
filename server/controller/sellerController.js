@@ -160,7 +160,7 @@ const getSellerOrders = async (req, res) => {
     const sellerId = req.user.id;
 
     const orders = await Order.find()
-      .populate('userId', 'name email')
+      .populate('userId', 'username email')
       .populate({
         path: 'products.productId',
         model: 'Product',
